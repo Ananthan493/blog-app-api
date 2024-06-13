@@ -24,8 +24,34 @@ app.post("/signup",async (req,res)=>{
     input.password = hashedPassword//for correct entry to db
     let blog = new blogmodel(input)
     blog.save()
-
     res.json({"status":"success"})
+})
+
+//api for signin
+app.post("/signin",(req,res)=>{
+    //res.json("status":"success")
+    let input = req.body
+    blogmodel.find({"email":req.body.email}).then(
+        (response)=>{
+            //console.log(response)
+            if (response.length>0) {
+                let dbPassword = response[0].password
+                console.log(dbPassword)
+                bcryptjs.compare(input.password,dbPassword,(error,isMatch)=>{
+                    if (isMatch) {
+                        res.json({"status":"success","userId":response[0]._id})
+                    } else {
+                        res.json({"status":"incorrect Password"})
+                    }
+                })
+                
+            } else {
+                res.json({"status":"user not found"})
+                
+            }
+        }
+    ).catch()
+
 })
 
 app.listen(8086,()=>{
