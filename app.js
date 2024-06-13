@@ -3,6 +3,7 @@ const mongoose = require("mongoose")
 const cors = require("cors")
 const {blogmodel} = require("./models/blog")
 const  bcryptjs = require("bcryptjs")
+const jwt = require("jsonwebtoken")
 
 const app = express()
 app.use(cors())
@@ -52,6 +53,25 @@ app.post("/signin",(req,res)=>{
         }
     ).catch()
 
+})
+
+app.post("/viewusers",(req,res)=>{
+    let token = req.headers["token"]
+    jwt.verify(token,"blogapp",(error,decoded)=>{
+        if (error) {
+            res.json({"status":"Unauthorized access"})
+            
+        } else {
+            if (decoded) {
+                blogmodel.find().then(
+                    (response)=>{
+                        res.json(response)
+                    }
+                ).catch()
+            }
+            
+        }
+    })
 })
 
 app.listen(8086,()=>{
